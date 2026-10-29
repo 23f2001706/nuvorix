@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1412">
+  <meta name="description" content="Nuvorix AI is building an imaging pipeline that transforms a single X-ray into richer CT-like and MRI-like views.">
+  <title>Nuvorix AI — Reimagining medical imaging</title>
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem("nuvorix-theme") === "light" ? "light" : "dark"; } catch (_) { document.documentElement.dataset.theme = "dark"; }</script>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f3f5ef;
+      --white: #fffefa;
+      --ink: #172923;
+      --muted: #5c6d64;
+      --line: #d9e1d8;
+      --green: #c2f279;
+      --green-deep: #274e3f;
+      --teal: #9de2cb;
+      --night: #102322;
+      --night-soft: #17312f;
+      --night-line: rgba(223, 243, 231, .15);
+      --lavender: #c6c9ff;
+      --max: 1160px;
+      --radius: 26px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #719b43; outline-offset: 4px; }
+    .skip-link {
+      position: absolute; left: 16px; top: -60px; z-index: 50;
+      background: var(--green); padding: 10px 16px; border-radius: 99px;
+      color: var(--ink); font-weight: 700;
+    }
+    .skip-link:focus { top: 12px; }
+    .wrap { width: min(var(--max), calc(100% - 48px)); margin-inline: auto; }
+
+    .site-header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(243, 245, 239, .88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(23, 41, 35, .08);
+    }
+    .nav-row { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; font-family: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", sans-serif; font-size: 22px; font-weight: 730; letter-spacing: -.065em; }
+    .brand-name { color: #19362d; }
+    .brand-name span { color: #648b47; }
+    .brand-mark { width: 38px; height: 38px; display: block; flex: 0 0 auto; }
+    .desktop-nav { display: flex; align-items: center; gap: clamp(18px, 3vw, 38px); }
+    .desktop-nav a, .mobile-menu a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 650; transition: color .2s ease; }
+    .desktop-nav a:hover, .mobile-menu a:hover { color: var(--ink); }
+    .mobile-menu { display: none; }
+
+    .hero { position: relative; overflow: hidden; padding: 84px 0 72px; }
+    .hero::before {
+      content: ""; position: absolute; width: 470px; height: 470px; border-radius: 50%;
+      right: -210px; top: -235px; pointer-events: none;
+      background: radial-gradient(circle, rgba(194, 242, 121, .38), rgba(194, 242, 121, 0) 69%);
+    }
+    .hero-grid { position: relative; display: grid; grid-template-columns: 1.04fr .96fr; align-items: center; gap: clamp(45px, 8vw, 102px); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--green-deep); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 19px; height: 2px; background: #83a94e; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 660px; margin: 20px 0 22px; font-size: clamp(46px, 6.3vw, 78px); line-height: .99; letter-spacing: -.075em; font-weight: 740; }
+    h1 em { color: #63854a; font-style: normal; }
+    .hero-copy { max-width: 545px; color: #56675e; font-size: clamp(16px, 1.55vw, 18px); line-height: 1.72; }
+    .hero-note { display: flex; align-items: center; gap: 9px; margin-top: 27px; color: #66746c; font-size: 11px; font-weight: 650; letter-spacing: .02em; }
+    .status-dot { width: 7px; height: 7px; display: inline-block; flex: 0 0 auto; border-radius: 50%; background: #8fb65c; box-shadow: 0 0 0 4px rgba(143,182,92,.16); }
+
+    .visual-card {
+      position: relative; isolation: isolate; overflow: hidden; min-height: 430px;
+      padding: 21px; border-radius: 28px; color: #eef6ec;
+      background: radial-gradient(ellipse at 12% 9%, rgba(121, 171, 111, .22), transparent 38%), linear-gradient(145deg, #183633, #0e201f 75%);
+      box-shadow: 0 30px 75px rgba(27, 53, 43, .16);
+    }
+    .visual-card::before {
+      content: ""; position: absolute; inset: 0; z-index: -1; opacity: .27;
+      background-image: radial-gradient(rgba(214,244,219,.42) .7px, transparent .7px); background-size: 19px 19px;
+      mask-image: linear-gradient(135deg, black, transparent 78%);
+    }
+    .visual-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #b2c9ba; font-size: 9px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .visual-top .live { display: inline-flex; align-items: center; gap: 7px; color: #d9e9c8; }
+    .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .visual-flow { margin: 28px 0 0; }
+    .imaging-triptych { display: block; width: 100%; aspect-ratio: 1.72; object-fit: cover; object-position: center; border: 1px solid rgba(217,239,224,.18); border-radius: 14px; background: #071110; }
+    .imaging-captions { display: grid; grid-template-columns: 1fr 22px 1fr 22px 1fr; align-items: center; gap: 7px; margin-top: 15px; text-align: center; }
+    .imaging-captions > div { min-width: 0; }
+    .imaging-captions strong { display: block; color: #eef5ec; font-size: 10px; font-weight: 760; }
+    .imaging-captions small { color: #9fb8aa; font-size: 9px; }
+    .imaging-captions .flow-arrow { color: var(--green); font-size: 17px; }
+    .visual-bottom { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 30px; padding-top: 15px; border-top: 1px solid rgba(217,239,224,.15); color: #a9c1b2; font-size: 9px; }
+    .visual-bottom strong { color: #e1eccc; font-weight: 700; }
+
+    .principles { padding: 0 0 78px; }
+    .principles-row { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .principle { display: flex; align-items: flex-start; gap: 16px; padding: 25px 25px 25px 0; }
+    .principle + .principle { padding-left: 25px; border-left: 1px solid var(--line); }
+    .principle-index { color: #6d8b58; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .principle strong { display: block; margin-bottom: 3px; font-size: 13px; letter-spacing: -.02em; }
+    .principle span:last-child { color: var(--muted); font-size: 12px; }
+
+    .section { padding: 104px 0; }
+    .section-heading { max-width: 690px; }
+    .section-heading h2 { margin: 15px 0 15px; font-size: clamp(34px, 4.3vw, 54px); line-height: 1.06; letter-spacing: -.065em; font-weight: 730; }
+    .section-heading p { max-width: 600px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .problem { padding-top: 70px; }
+    .problem-grid { display: grid; grid-template-columns: .9fr 1.1fr; align-items: end; gap: 70px; }
+    .problem-grid .section-heading { max-width: 520px; }
+    .problem-grid .section-heading h2 { font-size: clamp(38px, 4.6vw, 59px); }
+    .problem-points { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .problem-point { min-height: 132px; padding: 20px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.43); }
+    .problem-point .point-icon { display: grid; place-items: center; width: 30px; height: 30px; margin-bottom: 17px; border-radius: 9px; background: #e3edda; color: #43663b; font-size: 13px; font-weight: 800; }
+    .problem-point strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .problem-point p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .approach { position: relative; overflow: hidden; background: var(--night); color: #f4f7ef; }
+    .approach::after { content: ""; position: absolute; width: 520px; height: 520px; right: -260px; bottom: -280px; border-radius: 50%; background: radial-gradient(circle, rgba(135, 192, 136, .22), transparent 70%); pointer-events: none; }
+    .approach .eyebrow { color: #bde4aa; }
+    .approach .eyebrow::before { background: var(--green); }
+    .approach .section-heading p { color: #b2c7bb; }
+    .pipeline { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 45px; }
+    .pipeline-card { position: relative; overflow: hidden; min-height: 275px; padding: 28px; border: 1px solid var(--night-line); border-radius: 20px; background: linear-gradient(140deg, rgba(255,255,255,.075), rgba(255,255,255,.025)); }
+    .pipeline-card::before { content: ""; position: absolute; right: -24px; top: -28px; width: 175px; height: 175px; border: 1px solid rgba(190,229,181,.14); border-radius: 50%; box-shadow: 0 0 0 18px rgba(190,229,181,.035), 0 0 0 36px rgba(190,229,181,.025); }
+    .pipeline-number { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .13em; }
+    .pipeline-card h3 { position: relative; max-width: 380px; margin: 48px 0 11px; font-size: 25px; line-height: 1.14; letter-spacing: -.05em; }
+    .pipeline-card p { max-width: 440px; margin: 0; color: #b2c7bb; font-size: 13px; line-height: 1.7; }
+    .pipeline-arrow { position: absolute; top: 48%; left: calc(50% - 20px); z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--green); color: var(--ink); font-size: 17px; font-weight: 900; box-shadow: 0 0 0 8px var(--night); }
+    .pipeline-labels { display: flex; align-items: center; gap: 8px; margin-top: 24px; color: #d4e1d6; font-size: 10px; font-weight: 700; }
+    .pipeline-labels span { padding: 6px 10px; border: 1px solid var(--night-line); border-radius: 99px; }
+    .pipeline-insight { display: grid; grid-template-columns: 170px 1fr; gap: 22px; align-items: start; margin-top: 17px; padding: 20px 22px; border: 1px solid rgba(194,242,121,.22); border-radius: 16px; background: rgba(194,242,121,.07); }
+    .pipeline-insight strong { color: var(--green); font-size: 12px; }
+    .pipeline-insight p { margin: 0; color: #c3d3c8; font-size: 12px; line-height: 1.7; }
+
+    .research-grid { display: grid; grid-template-columns: .88fr 1.12fr; gap: 78px; align-items: start; }
+    .method-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .method { min-height: 171px; padding: 21px; border: 1px solid var(--line); border-radius: 17px; background: var(--white); transition: transform .2s ease, box-shadow .2s ease; }
+    .method:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(29,52,40,.07); }
+    .method-mark { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 18px; border-radius: 11px; background: #e8f0dd; color: #4d7240; font-size: 13px; font-weight: 850; }
+    .method h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: -.02em; }
+    .method p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .research-aside { margin-top: 26px; padding-top: 23px; border-top: 1px solid var(--line); }
+    .research-aside strong { display: block; margin-bottom: 7px; font-size: 13px; }
+    .research-aside p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .engineering { position: relative; overflow: hidden; background: #142b29; color: #f4f7ef; }
+    .engineering::before { content: ""; position: absolute; left: -260px; top: -260px; width: 540px; height: 540px; border-radius: 50%; background: radial-gradient(circle, rgba(137,191,132,.19), transparent 70%); pointer-events: none; }
+    .engineering .wrap { position: relative; }
+    .engineering .eyebrow { color: #bde4aa; }
+    .engineering .eyebrow::before { background: var(--green); }
+    .engineering .section-heading p { color: #b2c7bb; }
+    .challenge-list { display: grid; gap: 11px; margin-top: 37px; }
+    .challenge { display: grid; grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr); align-items: center; gap: 17px; padding: 16px 19px; border: 1px solid var(--night-line); border-radius: 16px; background: rgba(255,255,255,.045); }
+    .challenge-label { color: #9db7a8; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .challenge strong { display: block; margin-top: 4px; color: #f2f5ef; font-size: 13px; font-weight: 650; letter-spacing: -.01em; }
+    .challenge-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(194,242,121,.13); color: var(--green); font-size: 14px; }
+    .challenge-response .challenge-label { color: #bada9e; }
+    .engineering-loop { display: flex; align-items: center; gap: 10px; margin-top: 25px; color: #d9e8dc; font-size: 11px; font-weight: 750; }
+    .engineering-loop span { padding: 7px 12px; border: 1px solid var(--night-line); border-radius: 99px; }
+    .engineering-loop b { color: var(--green); font-size: 15px; }
+
+    .deployment { padding: 92px 0; background: #e4eddf; }
+    .deployment-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 80px; align-items: center; }
+    .deployment .section-heading h2 { font-size: clamp(36px, 4vw, 50px); }
+    .deployment-cards { display: grid; gap: 12px; }
+    .deployment-card { display: grid; grid-template-columns: 54px 1fr; gap: 18px; padding: 20px; border: 1px solid rgba(52,86,62,.16); border-radius: 17px; background: rgba(255,255,255,.5); }
+    .deployment-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #d4e5ca; color: #385d40; }
+    .deployment-icon svg { width: 23px; height: 23px; }
+    .deployment-card h3 { margin: 1px 0 5px; font-size: 14px; letter-spacing: -.02em; }
+    .deployment-card p { margin: 0; color: #586c5c; font-size: 12px; line-height: 1.65; }
+    .deployment-card small { display: block; margin-top: 8px; color: #46654c; font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+
+    .vision { padding: 100px 0; }
+    .vision .section-heading { max-width: 750px; }
+    .vision-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 38px; }
+    .vision-card { min-height: 175px; padding: 20px; border-top: 2px solid #90b46c; background: rgba(255,255,255,.43); }
+    .vision-card span { display: block; margin-bottom: 30px; color: #759256; font-size: 10px; font-weight: 850; letter-spacing: .13em; }
+    .vision-card strong { display: block; margin-bottom: 7px; font-size: 14px; letter-spacing: -.02em; }
+    .vision-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+
+    .partners { background: var(--white); }
+    .partners-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-top: 38px; }
+    .partner-card { position: relative; overflow: hidden; min-height: 198px; padding: 23px 21px; border: 1px solid var(--line); border-radius: 18px; background: #f8f9f4; transition: transform .2s ease, box-shadow .2s ease; }
+    .partner-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(29,52,40,.08); }
+    .partner-number { color: #789457; font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+    .partner-card h3 { margin: 30px 0 8px; font-size: 15px; letter-spacing: -.03em; }
+    .partner-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+
+    .team { background: #e7eee3; }
+    .team .section-heading { max-width: 760px; }
+    .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; align-items: stretch; }
+    .team-card { position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 420px; padding: 23px; border: 1px solid rgba(52,86,62,.14); border-radius: 21px; background: var(--white); box-shadow: 0 16px 42px rgba(32,57,42,.055); }
+    .team-card::before { content: ""; position: absolute; width: 190px; height: 190px; right: -100px; top: -110px; border-radius: 50%; background: radial-gradient(circle, rgba(194,242,121,.3), transparent 69%); pointer-events: none; }
+    .team-card-top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
+    .team-avatar { display: grid; place-items: center; width: 58px; height: 58px; border: 1px solid rgba(36,77,58,.14); border-radius: 18px; background: linear-gradient(145deg, #e8f3d8, #cce6c8); color: #234d3b; font-family: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", sans-serif; font-size: 15px; font-weight: 800; letter-spacing: -.04em; }
+    .team-card:nth-child(2) .team-avatar { background: linear-gradient(145deg, #e5ebff, #d0d8f6); color: #39466c; }
+    .team-card:nth-child(3) .team-avatar { background: linear-gradient(145deg, #f0e8d8, #e4d9c4); color: #66513a; }
+    .team-role { color: #71816f; font-size: 9px; font-weight: 850; letter-spacing: .12em; text-align: right; text-transform: uppercase; }
+    .team-card h3 { position: relative; margin: 0 0 6px; font-size: clamp(19px, 2vw, 24px); line-height: 1.15; letter-spacing: -.05em; }
+    .team-position { display: block; margin-bottom: 15px; color: #63854a; font-size: 11px; font-weight: 780; }
+    .team-bio { margin: 0; color: #5c6d64; font-size: 11px; line-height: 1.72; }
+    .team-highlights { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; padding-top: 18px; }
+    .team-highlights span { display: inline-flex; align-items: center; min-height: 26px; padding: 5px 9px; border: 1px solid #dbe5d5; border-radius: 99px; background: #f5f8f0; color: #4b6746; font-size: 9px; font-weight: 750; }
+
+    .closing { padding: 0 0 78px; }
+    .closing-card { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: flex-start; gap: 36px; padding: clamp(30px, 6vw, 60px); border-radius: 26px; background: var(--green); }
+    .closing-card::after { content: ""; position: absolute; right: 130px; top: -205px; width: 440px; height: 440px; border: 1px solid rgba(39,78,63,.15); border-radius: 50%; box-shadow: 0 0 0 30px rgba(39,78,63,.035), 0 0 0 60px rgba(39,78,63,.035); pointer-events: none; }
+    .closing-copy { position: relative; z-index: 1; max-width: 720px; }
+    .closing-copy .eyebrow { color: #365d41; }
+    .closing-copy h2 { margin: 14px 0 10px; font-size: clamp(30px, 4vw, 46px); line-height: 1.08; letter-spacing: -.06em; }
+    .closing-copy p { max-width: 570px; margin: 0; color: #3e5e47; font-size: 14px; line-height: 1.7; }
+    footer { padding: 22px 0 30px; border-top: 1px solid var(--line); }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .footer-brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-family: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", sans-serif; font-size: 14px; font-weight: 730; letter-spacing: -.05em; }
+    .footer-brand .brand-mark { width: 27px; height: 27px; }
+    .footer-note, .footer-link { color: #6b786f; font-size: 10px; }
+    .footer-link { text-decoration: none; }
+    .footer-link:hover { color: var(--ink); }
+
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 99px;
+      background: var(--white); color: var(--ink); font: inherit; font-size: 11px; font-weight: 750;
+      white-space: nowrap; cursor: pointer; transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .theme-toggle:hover { border-color: #83a94e; transform: translateY(-1px); }
+    .theme-toggle svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    .theme-toggle:focus-visible { outline: 3px solid #719b43; outline-offset: 3px; }
+    .theme-toggle .theme-sun { display: none; }
+    :root[data-theme="dark"] .theme-toggle .theme-moon { display: none; }
+    :root[data-theme="dark"] .theme-toggle .theme-sun { display: block; }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --paper: #0d1412;
+      --white: #151f1b;
+      --ink: #ecf3ed;
+      --muted: #adbbb2;
+      --line: #2a3932;
+      --green: #b8ed76;
+      --green-deep: #b8d7a5;
+      --night: #091512;
+      --night-soft: #13251f;
+      --night-line: rgba(223, 243, 231, .16);
+    }
+    :root[data-theme="dark"] body { background: var(--paper); color: var(--ink); }
+    :root[data-theme="dark"] .site-header { background: rgba(13, 20, 18, .9); border-bottom-color: var(--line); }
+    :root[data-theme="dark"] .brand-name { color: #e8f1e9; }
+    :root[data-theme="dark"] .brand-name span { color: #b8d7a5; }
+    :root[data-theme="dark"] .hero-copy,
+    :root[data-theme="dark"] .hero-note { color: #b4c1b8; }
+    :root[data-theme="dark"] h1 em { color: #b8d7a5; }
+    :root[data-theme="dark"] .principle-index { color: #b8d7a5; }
+    :root[data-theme="dark"] .problem-point { background: rgba(255, 255, 255, .035); }
+    :root[data-theme="dark"] .problem-point .point-icon { background: #263a2b; color: #c8eda5; }
+    :root[data-theme="dark"] .method-mark { background: #263a2b; color: #c8eda5; }
+    :root[data-theme="dark"] .deployment { background: #111c18; }
+    :root[data-theme="dark"] .deployment-card { border-color: var(--line); background: rgba(255, 255, 255, .035); }
+    :root[data-theme="dark"] .deployment-card p { color: #b4c1b8; }
+    :root[data-theme="dark"] .deployment-card small { color: #c2d9bd; }
+    :root[data-theme="dark"] .deployment-icon { background: #263a2b; color: #c8eda5; }
+    :root[data-theme="dark"] .vision-card { background: rgba(255, 255, 255, .035); }
+    :root[data-theme="dark"] .vision-card span,
+    :root[data-theme="dark"] .partner-number { color: #b8d7a5; }
+    :root[data-theme="dark"] .partners { background: #111916; }
+    :root[data-theme="dark"] .partner-card { background: #18231e; }
+    :root[data-theme="dark"] .team { background: #101815; }
+    :root[data-theme="dark"] .team-card { border-color: var(--line); box-shadow: 0 16px 42px rgba(0, 0, 0, .18); }
+    :root[data-theme="dark"] .team-role { color: #b4c1b8; }
+    :root[data-theme="dark"] .team-position { color: #c2dfaa; }
+    :root[data-theme="dark"] .team-bio { color: #b4c1b8; }
+    :root[data-theme="dark"] .team-highlights span { border-color: #334638; background: #1c2b22; color: #c6dfb4; }
+    :root[data-theme="dark"] .closing-card { color: #173126; }
+    :root[data-theme="dark"] .closing-copy h2 { color: #173126; }
+    :root[data-theme="dark"] .pipeline-arrow { color: #173126; }
+    :root[data-theme="dark"] .footer-note,
+    :root[data-theme="dark"] .footer-link { color: #aab9af; }
+
+    @media (min-width: 701px) and (max-width: 850px) {
+      .nav-row { gap: 13px; }
+      .desktop-nav { display: none; }
+      .mobile-menu { position: relative; display: block; flex: 0 0 auto; }
+      .mobile-menu summary { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; list-style: none; cursor: pointer; padding: 10px 13px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; font-weight: 750; }
+      .mobile-menu summary::-webkit-details-marker { display: none; }
+      .mobile-menu summary::after { content: "v"; font-size: 11px; }
+      .mobile-menu[open] summary::after { content: "^"; }
+      .mobile-menu nav { position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px; display: grid; gap: 15px; padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); box-shadow: 0 14px 34px rgba(23, 41, 35, .2); }
+      .theme-toggle-label { display: none; }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { gap: 42px; }
+      .visual-card { min-height: 390px; padding: 17px; }
+      .problem-grid, .research-grid, .deployment-grid { gap: 42px; }
+      .vision-grid, .partners-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 701px) and (max-width: 1000px) {
+      .desktop-nav { gap: clamp(9px, 1.35vw, 14px); }
+      .desktop-nav a { font-size: 11px; }
+      .brand { gap: 8px; font-size: 20px; }
+      .brand-mark { width: 34px; height: 34px; }
+    }
+    @media (max-width: 700px) {
+      .wrap { width: min(100% - 36px, var(--max)); }
+      .nav-row { min-height: 68px; gap: 10px; }
+      .theme-toggle { width: 40px; padding: 0; }
+      .theme-toggle-label { display: none; }
+      .desktop-nav { display: none; }
+      .mobile-menu { position: relative; display: block; }
+      .mobile-menu summary { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; list-style: none; cursor: pointer; padding: 10px 13px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; font-weight: 750; }
+      .mobile-menu summary::-webkit-details-marker { display: none; }
+      .mobile-menu summary::after { content: "⌄"; font-size: 15px; }
+      .mobile-menu[open] summary::after { content: "⌃"; }
+      .mobile-menu nav { position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px; display: grid; gap: 15px; padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); box-shadow: 0 14px 34px rgba(23,41,35,.12); }
+      .hero { padding: 62px 0 50px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 38px; }
+      .team-grid { grid-template-columns: 1fr; }
+      .team-card { min-height: 0; }
+      h1 { max-width: 600px; font-size: clamp(47px, 12vw, 70px); }
+      .visual-card { min-height: 365px; }
+      .visual-flow { margin-top: 30px; }
+      .principles { padding-bottom: 45px; }
+      .principles-row { grid-template-columns: 1fr; }
+      .principle, .principle + .principle { padding: 17px 0; border-left: 0; }
+      .principle + .principle { border-top: 1px solid var(--line); }
+      .section { padding: 76px 0; }
+      .problem { padding-top: 48px; }
+      .problem-grid, .research-grid, .deployment-grid { grid-template-columns: 1fr; gap: 32px; }
+      .problem-points { grid-template-columns: 1fr 1fr; }
+      .pipeline { grid-template-columns: 1fr; gap: 12px; }
+      .pipeline-card { min-height: 225px; padding: 23px; }
+      .pipeline-card h3 { margin-top: 36px; }
+      .pipeline-arrow { position: static; justify-self: center; margin: -2px 0; transform: rotate(90deg); box-shadow: 0 0 0 6px var(--night); }
+      .pipeline-insight { grid-template-columns: 1fr; gap: 8px; }
+      .challenge { gap: 10px; padding: 15px; }
+      .challenge strong { font-size: 12px; }
+      .engineering-loop { flex-wrap: wrap; }
+      .deployment { padding: 72px 0; }
+      .vision { padding: 76px 0; }
+      .closing { padding-bottom: 54px; }
+      .closing-card { align-items: flex-start; flex-direction: column; gap: 23px; }
+      .closing-card::after { right: -250px; }
+    }
+    @media (max-width: 430px) {
+      .wrap { width: min(100% - 28px, var(--max)); }
+      .visual-card { min-height: 340px; padding: 14px; border-radius: 21px; }
+      .visual-flow { margin-top: 27px; }
+      .imaging-captions { grid-template-columns: 1fr 14px 1fr 14px 1fr; gap: 3px; }
+      .imaging-triptych { aspect-ratio: 1.55; border-radius: 10px; }
+      .imaging-captions strong { font-size: 9px; }
+      .imaging-captions small { font-size: 8px; }
+      .visual-bottom { margin-top: 22px; font-size: 8px; }
+      .problem-points, .method-list, .vision-grid, .partners-grid, .team-grid { grid-template-columns: 1fr; }
+      .problem-point { min-height: 116px; }
+      .method { min-height: 150px; }
+      .footer-row { align-items: flex-start; flex-direction: column; gap: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap nav-row">
+      <a class="brand" href="#top" aria-label="Nuvorix AI home">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="1" y="1" width="42" height="42" rx="14" fill="#173a31"/>
+          <path d="M11.5 29 21.5 13.5 32.5 29Z" fill="none" stroke="#9de2cb" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M11.5 29 21.5 24 32.5 29" fill="none" stroke="#c2f279" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="11.5" cy="29" r="3.2" fill="#9de2cb"/>
+          <circle cx="21.5" cy="13.5" r="3.5" fill="#c2f279"/>
+          <circle cx="32.5" cy="29" r="3.2" fill="#c6c9ff"/>
+        </svg>
+        <span class="brand-name">nuvorix<span> ai</span></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#approach">Our approach</a>
+        <a href="#engineering">Engineering</a>
+        <a href="#research">Methods</a>
+        <a href="#deployment">Deployment</a>
+        <a href="#partners">Who we serve</a>
+        <a href="#team">Team</a>
+        <a href="#vision">Our vision</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode" title="Switch to dark mode">
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.4 8.4 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z"/></svg>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+        <span class="theme-toggle-label">Dark mode</span>
+      </button>
+      <details class="mobile-menu">
+        <summary aria-label="Open navigation menu">Menu</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="#approach">Our approach</a>
+          <a href="#engineering">Engineering</a>
+          <a href="#research">Methods</a>
+          <a href="#deployment">Deployment</a>
+          <a href="#partners">Who we serve</a>
+          <a href="#team">Team</a>
+          <a href="#vision">Our vision</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">Applied AI · Medical imaging</span>
+          <h1>We’re here to <em>change medical imaging.</em></h1>
+          <p class="hero-copy">Nuvorix AI is building a two-stage imaging pipeline that transforms a single X-ray into CT-like structure and MRI-like soft-tissue views. Our mission is to bring advanced imaging capabilities within reach of more clinics.</p>
+          <div class="hero-note"><span class="status-dot" aria-hidden="true"></span> Next-generation AI · Wider imaging access</div>
+        </div>
+
+        <div class="visual-card" aria-label="Conceptual illustration of the Nuvorix AI imaging pipeline">
+          <div class="visual-top"><span>Nuvorix AI · Imaging</span><span class="live">AI pipeline</span></div>
+          <figure class="visual-flow">
+            <img class="imaging-triptych" src="nuvorix-imaging-triptych.png" alt="Synthetic chest imaging triptych showing a frontal X-ray and axial CT and MRI-style views">
+            <figcaption class="imaging-captions">
+              <div><strong>X-ray</strong><small>2D projection</small></div>
+              <span class="flow-arrow" aria-hidden="true">›</span>
+              <div><strong>CT-like</strong><small>3D structure</small></div>
+              <span class="flow-arrow" aria-hidden="true">›</span>
+              <div><strong>MRI-like</strong><small>Soft-tissue contrast</small></div>
+            </figcaption>
+          </figure>
+          <div class="visual-bottom"><span><strong>One X-ray</strong> · richer imaging views</span><span>01 / 02</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="principles" aria-label="Research principles">
+      <div class="wrap principles-row">
+        <div class="principle"><span class="principle-index">01</span><div><strong>Start with what clinics have</strong><span>Explore from a familiar, widely used X-ray.</span></div></div>
+        <div class="principle"><span class="principle-index">02</span><div><strong>Translate in stages</strong><span>Study structure first, then contrast.</span></div></div>
+        <div class="principle"><span class="principle-index">03</span><div><strong>Design for real constraints</strong><span>Keep deployment realities in view.</span></div></div>
+      </div>
+    </section>
+
+    <section class="section problem" id="why">
+      <div class="wrap problem-grid">
+        <div class="section-heading">
+          <span class="eyebrow">Why this work matters</span>
+          <h2>Where you live can shape the imaging you can access.</h2>
+          <p>Advanced imaging depends on equipment, specialist capacity, and the distance to a well-resourced facility. Nuvorix AI is building tools to bring richer imaging capabilities closer to underserved communities.</p>
+        </div>
+        <div class="problem-points">
+          <article class="problem-point"><span class="point-icon" aria-hidden="true">↗</span><strong>Distance is a barrier</strong><p>Rural communities may travel hours to reach advanced imaging.</p></article>
+          <article class="problem-point"><span class="point-icon" aria-hidden="true">◎</span><strong>Capacity is limited</strong><p>Many public facilities serve large populations with few scanners.</p></article>
+          <article class="problem-point"><span class="point-icon" aria-hidden="true">⌁</span><strong>Cost shapes decisions</strong><p>Availability and affordability can influence which scan a patient receives.</p></article>
+          <article class="problem-point"><span class="point-icon" aria-hidden="true">⌖</span><strong>Workflows matter</strong><p>Any new tool must fit the people and conditions around care.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section approach" id="approach">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">The Nuvorix imaging pipeline</span>
+          <h2>Two stages. A richer view from one X-ray.</h2>
+          <p>Our cascaded translation pipeline tackles the challenge in two steps: first structure, then contrast. Separating the task helps each model focus on a clear imaging objective.</p>
+        </div>
+        <div class="pipeline">
+          <article class="pipeline-card">
+            <span class="pipeline-number">STAGE 01</span>
+            <h3>From one projection to CT-like structure</h3>
+            <p>Transform a single 2D X-ray into structured, 3D-like representations and generated slices.</p>
+            <div class="pipeline-labels"><span>X-ray</span><span aria-hidden="true">→</span><span>CT-like slices</span></div>
+          </article>
+          <span class="pipeline-arrow" aria-hidden="true">→</span>
+          <article class="pipeline-card">
+            <span class="pipeline-number">STAGE 02</span>
+            <h3>From structure to soft-tissue contrast</h3>
+            <p>Build on the intermediate representation to create richer MRI-like soft-tissue contrast views.</p>
+            <div class="pipeline-labels"><span>CT-like</span><span aria-hidden="true">→</span><span>MRI-like view</span></div>
+          </article>
+        </div>
+        <div class="pipeline-insight">
+          <strong>Why a two-stage pipeline?</strong>
+          <p>CT slices contain faint soft-tissue signals beneath bone-dominant contrast. Stage two focuses on amplifying those subtle cues into richer soft-tissue views.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="research">
+      <div class="wrap research-grid">
+        <div class="section-heading">
+          <span class="eyebrow">Inside the technology</span>
+          <h2>Purpose-built models for every stage.</h2>
+          <p>We combine generative models, reconstruction methods, and carefully tuned training strategies to build a connected multi-modal imaging pipeline.</p>
+          <div class="research-aside"><strong>Experiment · Measure · Retrain</strong><p>Our training strategy focuses on stable convergence and high-quality outputs, using spectral normalization, exponential moving averages, and mixed-precision training.</p></div>
+        </div>
+        <div class="method-list">
+          <article class="method"><span class="method-mark" aria-hidden="true">↔</span><h3>CycleGAN</h3><p>Translate between imaging modalities when perfectly paired scans are limited.</p></article>
+          <article class="method"><span class="method-mark" aria-hidden="true">▦</span><h3>PatchGAN</h3><p>Enforce local image realism across generated patches.</p></article>
+          <article class="method"><span class="method-mark" aria-hidden="true">✳</span><h3>Latent diffusion</h3><p>Generate high-resolution slices with rich visual detail.</p></article>
+          <article class="method"><span class="method-mark" aria-hidden="true">⌘</span><h3>Custom ResNet</h3><p>Build spectral-normalized generators for stable, structured outputs.</p></article>
+          <article class="method"><span class="method-mark" aria-hidden="true">⊞</span><h3>U-Net</h3><p>Learn aligned image translations from paired imaging data.</p></article>
+          <article class="method"><span class="method-mark" aria-hidden="true">⌁</span><h3>CNN refinement</h3><p>Refine generated slices using adversarial, perceptual, and cycle-consistency losses.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section engineering" id="engineering">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Engineering through iteration</span>
+          <h2>Every challenge drives a smarter design.</h2>
+          <p>Building a new imaging pipeline means solving for limited data, stable training, and real-world hardware. We turn each constraint into a focused engineering decision.</p>
+        </div>
+        <div class="challenge-list">
+          <article class="challenge">
+            <div><span class="challenge-label">Challenge</span><strong>Limited paired scans</strong></div>
+            <span class="challenge-arrow" aria-hidden="true">→</span>
+            <div class="challenge-response"><span class="challenge-label">Approach</span><strong>Unpaired CycleGAN training</strong></div>
+          </article>
+          <article class="challenge">
+            <div><span class="challenge-label">Challenge</span><strong>Discriminator collapse</strong></div>
+            <span class="challenge-arrow" aria-hidden="true">→</span>
+            <div class="challenge-response"><span class="challenge-label">Approach</span><strong>TTUR and DiffAugment</strong></div>
+          </article>
+          <article class="challenge">
+            <div><span class="challenge-label">Challenge</span><strong>Identity collapse</strong></div>
+            <span class="challenge-arrow" aria-hidden="true">→</span>
+            <div class="challenge-response"><span class="challenge-label">Approach</span><strong>Balanced cycle and feature-matching losses</strong></div>
+          </article>
+          <article class="challenge">
+            <div><span class="challenge-label">Challenge</span><strong>Edge-device storage limits</strong></div>
+            <span class="challenge-arrow" aria-hidden="true">→</span>
+            <div class="challenge-response"><span class="challenge-label">Approach</span><strong>Quantization and selective weights</strong></div>
+          </article>
+        </div>
+        <div class="engineering-loop" aria-label="Our development loop">
+          <span>Experiment</span><b aria-hidden="true">→</b><span>Measure</span><b aria-hidden="true">→</b><span>Retrain</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section deployment" id="deployment">
+      <div class="wrap deployment-grid">
+        <div class="section-heading">
+          <span class="eyebrow">Cloud to edge</span>
+          <h2>Cloud-powered. Designed for the clinic.</h2>
+          <p>Compute, connectivity, and clinic workflows matter as much as model design. Nuvorix AI pairs cloud-scale model development with efficient edge inference close to the point of care.</p>
+        </div>
+        <div class="deployment-cards">
+          <article class="deployment-card">
+            <span class="deployment-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 18.5h11a4 4 0 0 0 .5-8A6.5 6.5 0 0 0 5.3 9.1a4.7 4.7 0 0 0 1.2 9.4Z"/><path d="M9 14h6m-3-3v6"/></svg></span>
+            <div><h3>Cloud training</h3><p>Train and compare models on AWS SageMaker and EC2 GPU infrastructure, with datasets and checkpoints stored in S3.</p><small>NVIDIA A10 · 24 GB GPU memory</small></div>
+          </article>
+          <article class="deployment-card">
+            <span class="deployment-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 9h6v6H9zM9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3m14-6h3m-3 6h3"/></svg></span>
+            <div><h3>Clinic-side edge inference</h3><p>Run compact imaging models close to clinics, bringing advanced AI into real-world care environments.</p><small>Edge platform: NVIDIA Jetson AGX Orin</small></div>
+          </article>
+          <article class="deployment-card">
+            <span class="deployment-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 11.7-2L20 12M4 12l2.8 5a7 7 0 0 0 11.7-2"/></svg></span>
+            <div><h3>Continuous learning loop</h3><p>Run focused experiments, measure against relevant criteria, and retrain as evidence develops.</p><small>Experiment · Measure · Retrain</small></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section vision" id="vision">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Our vision for medical imaging</span>
+          <h2>More imaging capability. In more places.</h2>
+          <p>Nuvorix AI is building toward a future where advanced imaging insights are not limited by a clinic’s location or infrastructure.</p>
+        </div>
+        <div class="vision-grid">
+          <article class="vision-card"><span>01 / REIMAGINE</span><strong>More from one image</strong><p>Unlock richer imaging views from a widely available X-ray.</p></article>
+          <article class="vision-card"><span>02 / ENGINEER</span><strong>AI built for imaging</strong><p>Combine generative AI and reconstruction into one connected pipeline.</p></article>
+          <article class="vision-card"><span>03 / DEPLOY</span><strong>Closer to the clinic</strong><p>Bring powerful imaging models to practical edge hardware.</p></article>
+          <article class="vision-card"><span>04 / EXPAND</span><strong>Access without borders</strong><p>Build for hospitals and communities underserved by today’s imaging infrastructure.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section partners" id="partners">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Who we serve</span>
+          <h2>Built for the people moving imaging forward.</h2>
+          <p>Nuvorix AI is designed for an entire imaging ecosystem—connecting the needs of care providers, radiology teams, public health, and research.</p>
+        </div>
+        <div class="partners-grid">
+          <article class="partner-card"><span class="partner-number">01 / HEALTH SYSTEMS</span><h3>Hospitals & clinic networks</h3><p>Extend imaging capability across facilities and communities.</p></article>
+          <article class="partner-card"><span class="partner-number">02 / DISTRIBUTED CARE</span><h3>Tele-radiology teams</h3><p>Support imaging workflows that serve clinics across distance.</p></article>
+          <article class="partner-card"><span class="partner-number">03 / PUBLIC IMPACT</span><h3>Governments & NGOs</h3><p>Help widen access in underserved and resource-constrained regions.</p></article>
+          <article class="partner-card"><span class="partner-number">04 / ECOSYSTEM</span><h3>Researchers & insurers</h3><p>Build partnerships that advance imaging innovation and broader adoption.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section team" id="team">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Meet the founders</span>
+          <h2>A team building at the edge of AI and medical imaging.</h2>
+          <p>Nuvorix AI brings together machine learning, edge engineering, and a shared drive to make imaging innovation reach further.</p>
+        </div>
+        <div class="team-grid">
+          <article class="team-card">
+            <div class="team-card-top">
+              <span class="team-avatar" aria-hidden="true">SJS</span>
+              <span class="team-role">Founding team</span>
+            </div>
+            <h3>Syeda Jaseen Sara</h3>
+            <span class="team-position">CEO &amp; Co-founder</span>
+            <p class="team-bio">An accomplished technologist and machine learning engineer based in the Greater Hyderabad Area, Syeda has built an academic and research foundation through education and engineering roles at IIT Ropar and IIT Madras. Her work spans artificial intelligence, data systems, and edge computing. Alongside Jatin Tarange, she led Nuvorix AI’s first-place project at the Esper AI Hackathon in Bengaluru, designing an edge-AI imaging system for communities with limited access to advanced scans.</p>
+            <div class="team-highlights"><span>1st place · Esper AI Hackathon</span><span>15+ consecutive hackathon wins</span></div>
+          </article>
+
+          <article class="team-card">
+            <div class="team-card-top">
+              <span class="team-avatar" aria-hidden="true">JT</span>
+              <span class="team-role">Founding team</span>
+            </div>
+            <h3>Jatin Tarange</h3>
+            <span class="team-position">CTO &amp; Co-founder</span>
+            <p class="team-bio">A machine learning engineer and data technologist, Jatin focuses on computer vision, deep learning, and edge-AI architecture. He co-led Nuvorix AI’s first-place Esper AI Hackathon project with Syeda Jaseen Sara, building an imaging pipeline that transforms standard X-rays toward richer MRI-like views. His work optimizes models for compact local hardware, so clinic-side inference can run without depending on live cloud computation or expensive remote servers.</p>
+            <div class="team-highlights"><span>1st place · Esper AI Hackathon</span><span>15+ consecutive hackathon wins</span></div>
+          </article>
+
+          <article class="team-card">
+            <div class="team-card-top">
+              <span class="team-avatar" aria-hidden="true">SR</span>
+              <span class="team-role">Founding team</span>
+            </div>
+            <h3>Syeda Rida</h3>
+            <span class="team-position">Co-founder &amp; Data Scientist</span>
+            <p class="team-bio">Syeda Rida is a co-founder and data scientist at Nuvorix AI. She brings a data science perspective to the team’s work in AI and medical imaging, contributing to the shared mission of making imaging innovation more accessible to clinics and communities with limited infrastructure.</p>
+            <div class="team-highlights"><span>15+ consecutive hackathon wins</span><span>AI for wider imaging access</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing" aria-label="About Nuvorix AI">
+      <div class="wrap">
+        <div class="closing-card">
+          <div class="closing-copy">
+            <span class="eyebrow">Nuvorix AI · Imaging research</span>
+            <h2>The next era of medical imaging should reach everyone.</h2>
+            <p>We are building AI-powered medical imaging designed to bring richer insights to more clinics, with practical infrastructure and access at the center.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <a class="footer-brand" href="#top" aria-label="Nuvorix AI home">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="1" y="1" width="42" height="42" rx="14" fill="#173a31"/>
+          <path d="M11.5 29 21.5 13.5 32.5 29Z" fill="none" stroke="#9de2cb" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M11.5 29 21.5 24 32.5 29" fill="none" stroke="#c2f279" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="11.5" cy="29" r="3.2" fill="#9de2cb"/>
+          <circle cx="21.5" cy="13.5" r="3.5" fill="#c2f279"/>
+          <circle cx="32.5" cy="29" r="3.2" fill="#c6c9ff"/>
+        </svg>
+        <span>nuvorix ai</span>
+      </a>
+      <span class="footer-note">AI imaging research · Built with access in mind</span>
+      <a class="footer-link" href="#vision">Our vision</a>
+    </div>
+  </footer>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const button = document.getElementById("theme-toggle");
+      const label = button.querySelector(".theme-toggle-label");
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+      const applyTheme = (theme) => {
+        const isDark = theme === "dark";
+        root.dataset.theme = isDark ? "dark" : "light";
+        button.setAttribute("aria-pressed", String(isDark));
+        button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+        button.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+        label.textContent = isDark ? "Light mode" : "Dark mode";
+        if (themeMeta) themeMeta.content = isDark ? "#0d1412" : "#f3f5ef";
+      };
+
+      applyTheme(root.dataset.theme === "dark" ? "dark" : "light");
+      button.addEventListener("click", () => {
+        const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+        try { localStorage.setItem("nuvorix-theme", nextTheme); } catch (_) {}
+      });
+    })();
+  </script>
+</body>
+</html>
